@@ -61,6 +61,69 @@
         </template>
         <v-date-picker v-model="modelWrapper[modelKey]" no-title scrollable>
           <v-spacer />
+          <v-btn text class="v-btn--flat" :style="oldFlat" @click="menu = false"><template>
+  <v-form  ref="form">
+    <!-- Hide const ? Or make a readonly field -->
+    <div v-if="fullSchema && fullSchema.const === undefined && fullSchema['x-display'] !== 'hidden'" class="vjsf-property">
+      
+      <!-- Datetime picker -->
+      <v-layout v-if="schema.show_as === 'timestamp'" row>
+        <v-flex fluid>
+          <v-text-field
+            v-if="disabled"
+            :value="modelWrapper[modelKey]"
+            :label="label"
+            :name="fullKey"
+            :hint="schema.description"
+            :required="required"
+            :rules="rules"
+            prepend-icon="event"
+            readonly
+            
+          />
+          <v-datetime-picker
+            v-else
+            :datetime="modelWrapper[modelKey]"
+            v-model="modelWrapper[modelKey]"
+            :label="label"
+            prepend-icon="event"
+            @change="change"
+            @input="dateTimeChanged"
+            @showAsChanged="e => $emit('typechange', e)"
+            :readonly="readonly"
+            @valueEdited="dateValueEdited($event)"
+          />
+          <tooltip slot="append-outer" :html-description="htmlDescription" />
+        </v-flex>
+      </v-layout>
+      
+      <!-- Date picker -->
+      <v-menu v-else-if="fullSchema.show_as === 'string' && schema.format === 'date'" ref="menu" v-model="menu" :close-on-content-click="false"
+              :nudge-right="40"
+              :return-value.sync="modelWrapper[modelKey]"
+              :disabled="disabled"
+              transition="scale-transition"
+              offset-y
+              full-width
+              min-width="290px"
+      >
+        <template v-slot:activator="{on}">
+          <v-text-field
+            v-model="modelWrapper[modelKey]"
+            :label="label"
+            :name="fullKey"
+            :required="required"
+            :rules="rules"
+            :clearable="!required"
+            prepend-icon="event"
+            readonly
+            v-on="on"
+          >
+            <tooltip slot="append-outer" :html-description="htmlDescription" />
+          </v-text-field>
+        </template>
+        <v-date-picker v-model="modelWrapper[modelKey]" no-title scrollable>
+          <v-spacer />
           <v-btn text class="v-btn--flat" :style="oldFlat" @click="menu = false">
             Cancel
           </v-btn>
@@ -424,7 +487,8 @@
       <v-textarea v-else-if="fullSchema.show_as === 'hex'"
                     :rows="(modelWrapper[modelKey].length /60 )"
                     auto-grow
-                    style="width:90%"
+                    :background-color="fullSchema.hr != null && fullSchema.hr == 1 ? '#BDBDBD':''"
+                    :style="fullSchema.hr != null && fullSchema.hr == 1 ? 'padding:5px;width:90%':'width:90%'"
                     :value="modelWrapper[modelKey]"
                     :label="label"
                     @change="modelWrapper[modelKey]= $event"
@@ -499,7 +563,8 @@
         <v-textarea 
                       :rows="modelWrapper[modelKey].trim().toUpperCase().split('0A').length === 1 ? (modelWrapper[modelKey].length / 60 ) : modelWrapper[modelKey].trim().toUpperCase().split('0A').length"
                       auto-grow
-                      style="width:90%"   
+                      :background-color="fullSchema.hr != null && fullSchema.hr == 1 ? '#BDBDBD':''"
+                      :style="fullSchema.hr != null && fullSchema.hr == 1 ? 'padding:5px;width:90%':'width:90%'"
                       :value="modelWrapper[modelKey] | convertHextoAscii"
                       :name="fullKey"
                       :min="fullSchema.minimum"
@@ -1391,6 +1456,7 @@ export default {
 
 
 </style>
+
 
 
 
