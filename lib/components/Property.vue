@@ -1124,6 +1124,7 @@ export default {
     convertAsciitoHex(val) {
       //for Octect string
       if(val!=null){
+        val = val.replace(/\s*$/,"");
         var arr = [];
         for (var i = 0, l = val.length; i < l; i++) {
           var hex = Number(val.charCodeAt(i)).toString(16);
